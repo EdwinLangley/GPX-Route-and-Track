@@ -322,11 +322,13 @@ Route::Route(std::string source, bool isFileName, metres granularity)
     using namespace std;
     //Remove this and fix issues as they occur
     using namespace XML::Parser;
+    //Chnage name from temp
     string lat,lon,ele,name,temp,temp2;
     metres deltaH,deltaV;
     ostringstream oss,oss2;
 
     //Assign a value, done in line 361
+    //Change name?
     unsigned int num = 0;
 
     this->granularity = granularity;
