@@ -327,7 +327,7 @@ Route::Route(std::string source, bool isFileName, metres granularity)
     ostringstream oss,oss2;
 
     //Assign a value, done in line 361
-    unsigned int num;
+    unsigned int num = 0;
 
     this->granularity = granularity;
     if (isFileName){
@@ -358,7 +358,7 @@ Route::Route(std::string source, bool isFileName, metres granularity)
     }
 
     //Can be moved up to line 329
-    num = 0;
+    //num = 0;
     //New function #4
     if (! elementExists(source,"rtept")) throw domain_error("No 'rtept' element.");
     temp = getAndEraseElement(source, "rtept");
