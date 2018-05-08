@@ -320,11 +320,15 @@ std::string Route::buildReport() const
 Route::Route(std::string source, bool isFileName, metres granularity)
 {
     using namespace std;
+    //Remove this and fix issues as they occur
     using namespace XML::Parser;
     string lat,lon,ele,name,temp,temp2;
     metres deltaH,deltaV;
     ostringstream oss,oss2;
+
+    //Assign a value, done in line 361
     unsigned int num;
+
     this->granularity = granularity;
     if (isFileName){
         ifstream fs(source);
@@ -336,43 +340,59 @@ Route::Route(std::string source, bool isFileName, metres granularity)
         }
         source = oss2.str();
     }
+    //New function #1
     if (! elementExists(source,"gpx")) throw domain_error("No 'gpx' element.");
     temp = getElement(source, "gpx");
     source = getElementContent(temp);
+    //Function #1
     if (! elementExists(source,"rte")) throw domain_error("No 'rte' element.");
     temp = getElement(source, "rte");
     source = getElementContent(temp);
+
     if (elementExists(source, "name")) {
         temp = getAndEraseElement(source, "name");
+        //Use this->
         routeName = getElementContent(temp);
+        //Use this->
         oss << "Route name is: " << routeName << endl;
     }
+
+    //Can be moved up to line 329
     num = 0;
+    //New function #4
     if (! elementExists(source,"rtept")) throw domain_error("No 'rtept' element.");
     temp = getAndEraseElement(source, "rtept");
+    //Function #4
     if (! attributeExists(temp,"lat")) throw domain_error("No 'lat' attribute.");
+    //Function #4
     if (! attributeExists(temp,"lon")) throw domain_error("No 'lon' attribute.");
     lat = getElementAttribute(temp, "lat");
     lon = getElementAttribute(temp, "lon");
     temp = getElementContent(temp);
+    //New function #2
     if (elementExists(temp, "ele")) {
         temp2 = getElement(temp, "ele");
         ele = getElementContent(temp2);
         Position startPos = Position(lat,lon,ele);
+        //Use this->
         positions.push_back(startPos);
         oss << "Position added: " << startPos.toString() << endl;
         ++num;
     } else {
         Position startPos = Position(lat,lon);
+        //Use this->
         positions.push_back(startPos);
         oss << "Position added: " << startPos.toString() << endl;
         ++num;
     }
+    //New function #3/Function #1
     if (elementExists(temp,"name")) {
         temp2 = getElement(temp,"name");
         name = getElementContent(temp2);
     }
+    //Use this->
     positionNames.push_back(name);
+    //Use this->
     Position prevPos = positions.back(), nextPos = positions.back();
     while (elementExists(source, "rtept")) {
         temp = getAndEraseElement(source, "rtept");
@@ -381,18 +401,25 @@ Route::Route(std::string source, bool isFileName, metres granularity)
         lat = getElementAttribute(temp, "lat");
         lon = getElementAttribute(temp, "lon");
         temp = getElementContent(temp);
+        //Function #3
         if (elementExists(temp, "ele")) {
             temp2 = getElement(temp, "ele");
             ele = getElementContent(temp2);
+            //Not sure here...
             nextPos = Position(lat,lon,ele);
+
         } else nextPos = Position(lat,lon);
         if (areSameLocation(nextPos, prevPos)) oss << "Position ignored: " << nextPos.toString() << endl;
         else {
+            //Function #3
             if (elementExists(temp,"name")) {
                 temp2 = getElement(temp,"name");
                 name = getElementContent(temp2);
+                //Not sure here
             } else name = ""; // Fixed bug by adding this.
+            //Use this->
             positions.push_back(nextPos);
+            //Use this->
             positionNames.push_back(name);
             oss << "Position added: " << nextPos.toString() << endl;
             ++num;
@@ -400,6 +427,7 @@ Route::Route(std::string source, bool isFileName, metres granularity)
         }
     }
     oss << num << " positions added." << endl;
+
     routeLength = 0;
     for (unsigned int i = 1; i < num; ++i ) {
         deltaH = distanceBetween(positions[i-1], positions[i]);
